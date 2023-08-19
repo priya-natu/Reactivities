@@ -1,17 +1,12 @@
 import React, { ChangeEvent, useState } from 'react';
 import { Button, Form, Segment } from 'semantic-ui-react';
-import { Activity } from '../../../app/models/activity';
+import { useStore } from '../../../app/stores/store';
 
-interface Props {
-    closeForm: () => void;
-    activity: Activity | undefined;
-    createOrEdit: (activity: Activity) => void;
-    submitting: boolean
-}
+export default function ActivityForm() {
 
-export default function ActivityForm({closeForm, activity : selectedActivity, createOrEdit, submitting} : Props) {
+    const {activityStore} = useStore();
 
-    const intialState = selectedActivity ?? {
+    const intialState = activityStore.selectedActivity ?? {
         id: '',
         title: '',
         category: '',
@@ -22,9 +17,10 @@ export default function ActivityForm({closeForm, activity : selectedActivity, cr
     }
 
     const[activity, setActivity] = useState(intialState);
+    const {closeForm, createActivity, updateActivity, loading} = activityStore;
 
     function handleSubmit() {
-        createOrEdit(activity);
+        activity.id ? updateActivity(activity) : createActivity(activity);
     }
 
     function handleChangeEvent (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
@@ -41,7 +37,7 @@ export default function ActivityForm({closeForm, activity : selectedActivity, cr
                 <Form.Input placeholder='Date' type='date' name='date' value={activity.date} onChange={handleChangeEvent}/>
                 <Form.Input placeholder='City' name='city' value={activity.city} onChange={handleChangeEvent}/>
                 <Form.Input placeholder='Venue' name='venue' value={activity.venue} onChange={handleChangeEvent}/>
-                <Button loading={submitting} floated='right' positive type='submit' content='Submit' />
+                <Button loading={loading} floated='right' positive type='submit' content='Submit' />
                 <Button onClick={closeForm} floated='right' type='button' content='Cancel' />
             </Form>
         </Segment>
